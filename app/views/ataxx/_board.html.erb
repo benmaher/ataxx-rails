@@ -1,0 +1,17 @@
+<div id='board_section'>
+
+  <table id='board'>
+  <tbody>
+
+  <% 7.times do |row_index| %>
+    <tr>
+      <% 7.times do |column_index| %>
+        <% cell_id = "cell_#{column_index}_#{row_index}" %>
+        <td id='<%= cell_id %>'></td>
+      <% end %>
+    </tr>
+  <% end %>
+  </tbody>
+  </table>
+
+</div>

@@ -1,0 +1,15 @@
+<head>
+  <title>Ataxx</title>
+
+</head>
+
+
+<h1>ATAXX</h1>
+
+<%= content_tag "div", id: "game_data", data: {game_id: @game_id} do %>
+<% end %>
+
+<%= render 'board' %>
+<%= render 'status' %>
+<%= render 'user' %>
+<%= render 'debug' %>

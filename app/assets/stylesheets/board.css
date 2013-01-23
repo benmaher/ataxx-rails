@@ -1,0 +1,17 @@
+#board {
+  background-color: black;
+}
+
+#board td {
+  width: 32px;
+  height: 32px;
+  background-color: white;
+}
+
+#status_section {
+  border: thin red solid;
+  width: 50%;
+  height: 32px;
+  margin: 32px 0px;
+
+}
