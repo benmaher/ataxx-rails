@@ -3,14 +3,36 @@
   <table id='board'>
   <tbody>
 
-  <% 7.times do |row_index| %>
+  <tr>
+    <td class='corner'></td>
+    <% @game_grid.column_labels.each do |column_label| %>
+      <% column_id = "column_#{column_label}" %>
+      <td id='<%= column_id %>'><%=column_label%></td>
+    <% end %>
+    <td class='corner'></td>
+  </tr>
+
+  <% @game_grid.row_labels.each do |row_label| %>
     <tr>
-      <% 7.times do |column_index| %>
-        <% cell_id = "cell_#{column_index}_#{row_index}" %>
+      <% row_id = "row_#{row_label}" %>
+      <td id='<%= row_id %>'><%=row_label%></td>
+      <% @game_grid.column_labels.each do |column_label| %>
+        <% cell_id = "cell_#{column_label}#{row_label}" %>
         <td id='<%= cell_id %>'></td>
       <% end %>
+      <td id='<%= row_id %>'><%=row_label%></td>
     </tr>
   <% end %>
+
+  <tr>
+    <td class='corner'></td>
+    <% @game_grid.column_labels.each do |column_label| %>
+      <% column_id = "column_#{column_label}" %>
+      <td id='<%= column_id %>'><%=column_label%></td>
+    <% end %>
+    <td class='corner'></td>
+  </tr>
+
   </tbody>
   </table>
 

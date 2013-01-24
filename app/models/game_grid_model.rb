@@ -1,7 +1,7 @@
 require 'set'
 
-require './models/game_grid_cell_model.rb'
-require './models/grid_point_model.rb'
+# require './models/game_grid_cell_model.rb'
+# require './models/grid_point_model.rb'
 
 
 class GameGridModel

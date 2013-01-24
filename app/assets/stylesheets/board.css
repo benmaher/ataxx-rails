@@ -6,6 +6,21 @@
   width: 32px;
   height: 32px;
   background-color: white;
+  text-align: center;
+}
+
+#board .corner {
+  background-color: black;
+}
+
+#board .red_piece {
+  background-color: red;
+
+}
+
+#board .blue_piece {
+  background-color: blue;
+
 }
 
 #status_section {

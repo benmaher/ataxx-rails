@@ -1,6 +1,7 @@
 class PlayerModel
   attr_reader 'id'
   attr_reader 'logo'
+  attr_reader :game_pieces
 
   def initialize(id, logo)
     @id = id

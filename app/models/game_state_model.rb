@@ -1,16 +1,20 @@
-require './models/game_grid_model.rb'
-require './models/game_piece_model.rb'
-require './models/grid_point_model.rb'
-require './models/player_model.rb'
-require './views/game_grid_view.rb'
+# require './models/game_grid_model.rb'
+# require './models/game_piece_model.rb'
+# require './models/grid_point_model.rb'
+# require './models/player_model.rb'
+# require './views/game_grid_view.rb'
 
 
 class GameStateModel
+
+  attr_reader :game_grid_model
 
   STATE_START_TURN = 0
   STATE_SELECT_PIECE = 1
   STATE_MOVE_PIECE = 2
   STATE_END_TURN = 3
+  STATE_RUNNING = 4
+  STATE_FINISHED = 5
 
   def initialize
 
@@ -41,152 +45,200 @@ class GameStateModel
 
     # remove_player_piece(@game_grid_model.get_game_piece("g6"))
 
+    # -- Initialize start of game.
+
+    @player_order = [1, 2]
+    @player_position = 0
+
+  end
+
+  def get_state_stats
+    {
+      :name => @game_state,
+      :board => get_board_state_stats
+    }
+  end
+
+  def get_board_state_stats
+    {
+      :pieces => get_all_piece_state_stats,
+      :size => [@game_grid_model.x_size, @game_grid_model.y_size]
+    }
+  end
+
+  def get_all_piece_state_stats
+    states = []
+    @players.each do |player_id, player|
+      player.game_pieces.each do |piece|
+        states.push({
+          :player_id => player_id,
+          :location_id => piece.location_id
+          })
+      end
+    end
+    return states
   end
 
   def start
-    # -- Initialize start of game.
-    @game_state = STATE_START_TURN
-
-    player_order = [1, 2]
-    player_position = 0
-    message = nil
+    @game_state = STATE_SELECT_PIECE
     @game_running = true
+    end_player_turn
+    state = get_state_stats
+    state[:board][:reset] = true
+    return state
+  end
 
-    # -- Run game loop.
-    while(@game_running) do
+  def end_player_turn
 
-      case @game_state
-      # -- Start of player turn.
-      when STATE_START_TURN
-        # -- Select next player.
-        @current_player_id = player_order[player_position]
-        @current_player = @players[@current_player_id]
 
+    if has_game_ended?
+      # -- Game has ended.
+
+      @game_running = false
+
+      # -- Draw final board.
+      redraw_board(message)
+
+      # -- Handle winner or draw.
+      if @winner == nil
+        puts "Result: The game is a draw."
+      else
+        puts "Result: Player #{@winner.logo} wins!"
+      end
+      puts "GAME OVER"
+
+    else
+      # -- Game still running.
+
+      # -- Switch to next player.
+      @player_position += 1
+      @player_position = @player_position >= @player_order.length ? 0 : @player_position
+
+      # puts "Press enter for next turn..."
+      # gets
+
+
+      # -- Set status message.
+      message = nil
+      # -- Transition to next game state.
+      @game_state = STATE_START_TURN
+
+
+      # -- Select next player.
+      @current_player_id = @player_order[@player_position]
+      @current_player = @players[@current_player_id]
+
+      # -- Set status message.
+      message = nil
+      # -- Transition to next game state.
+      @game_state = STATE_SELECT_PIECE
+    end
+  end
+
+  def handle_update(update_info)
+
+    response = {}
+    message = nil
+    puts "hello"
+    puts @game_state.inspect
+
+    case @game_state
+
+    when STATE_SELECT_PIECE
+      response[:game_state] = @game_state
+
+      # -- Draw game board and message.
+      redraw_board(message)
+
+      # -- Get player selection.
+      # print "Move which piece?: "
+      # piece_location = gets.strip
+      piece_location = update_info[:location_id]
+      puts "Clicked location: #{piece_location}"
+      # -- Attempt to get player piece at that location.
+      @current_player_piece = get_player_piece(@current_player_id, piece_location)
+
+      if @current_player_piece == nil
+        # -- Invalid piece selection.
+        puts = "\"#{piece_location}\" is not a valid selection."
+      else
+        puts "Selected piece at location: #{piece_location}"
+
+        # -- Valid piece selection.
+        # -- Update game grid with possible moves for selected piece.
+        @game_grid_model.set_target_locations(@current_player_piece.available_moves)
         # -- Set status message.
         message = nil
         # -- Transition to next game state.
-        @game_state = STATE_SELECT_PIECE
+        @game_state = STATE_MOVE_PIECE
 
-      when STATE_SELECT_PIECE
-        # -- Draw game board and message.
+
+        response[:select_pieces] = [{
+          :player_id => @current_player_piece,
+          :baord_location => @current_player_piece.location_id
+        }];
+
         redraw_board(message)
 
-        # -- Get player selection.
-        print "Move which piece?: "
-        piece_location = gets.strip
-
-        # -- Attempt to get player piece at that location.
-        @current_player_piece = get_player_piece(@current_player_id, piece_location)
+      end
 
 
-        if @current_player_piece == nil
-          # -- Invalid piece selection.
-          message = "\"#{piece_location}\" is not a valid selection."
-        else
-          # -- Valid piece selection.
-          # -- Update game grid with possible moves for selected piece.
-          @game_grid_model.set_target_locations(@current_player_piece.available_moves)
-          # -- Set status message.
-          message = nil
-          # -- Transition to next game state.
-          @game_state = STATE_MOVE_PIECE
+    when STATE_MOVE_PIECE
+      # -- Draw game board and message.
+      redraw_board(message)
+
+      # -- Get player move.
+      # print "Move \"#{piece_location}\" to where?: "
+      # piece_destintation = gets.strip
+      piece_destintation = update_info[:location_id]
+      puts "Clicked location: #{piece_destintation}"
+
+      if @current_player_piece.allowed_move?(piece_destintation) &&
+        !@game_grid_model.occupied_location?(piece_destintation)
+        # -- Move is allowed by piece and destination is not occupied.
+
+        # -- Get destination grid point.
+        piece_destination_grid_point = @game_grid_model.get_location_grid_point(piece_destintation)
+
+        if (@current_player_piece.location_grid_point.x - piece_destination_grid_point.x).abs > 1 ||
+          (@current_player_piece.location_grid_point.y - piece_destination_grid_point.y).abs > 1
+          # -- Movement is more than one space.
+
+          # -- Piece jumps instead of duplicating.
+          remove_player_piece(@current_player_piece)
         end
 
+        # -- Add new piece.
+        @attacking_player_piece = add_new_player_piece(@current_player_id, piece_destintation)
+        # -- Assmiilate adjacent opponent pieces.
+        assimilate_adjacent_enemies(@attacking_player_piece)
 
-      when STATE_MOVE_PIECE
-        # -- Draw game board and message.
+        # -- Clear possible moves from game grid.
+        @game_grid_model.set_target_locations(nil)
+
+        end_player_turn()
+
         redraw_board(message)
 
-        # -- Get player move.
-        print "Move \"#{piece_location}\" to where?: "
-        piece_destintation = gets.strip
+      else
+        # -- Move is not allowed by piece or destination is occupied.
 
-        if @current_player_piece.allowed_move?(piece_destintation) &&
-          !@game_grid_model.occupied_location?(piece_destintation)
-          # -- Move is allowed by piece and destination is not occupied.
-
-          # -- Get destination grid point.
-          piece_destination_grid_point = @game_grid_model.get_location_grid_point(piece_destintation)
-
-          if (@current_player_piece.location_grid_point.x - piece_destination_grid_point.x).abs > 1 ||
-            (@current_player_piece.location_grid_point.y - piece_destination_grid_point.y).abs > 1
-            # -- Movement is more than one space.
-
-            # -- Piece jumps instead of duplicating.
-            remove_player_piece(@current_player_piece)
-          end
-
-          # -- Add new piece.
-          @attacking_player_piece = add_new_player_piece(@current_player_id, piece_destintation)
-          # -- Assmiilate adjacent opponent pieces.
-          assimilate_adjacent_enemies(@attacking_player_piece)
+        if piece_destintation.empty?
+          # -- No destination entered.
 
           # -- Clear possible moves from game grid.
           @game_grid_model.set_target_locations(nil)
 
           # -- Set status message.
-          message = nil
-          # -- Transition to next game state.
-          @game_state = STATE_END_TURN
+          message = "Deselected \"#{piece_location}\"."
+          # -- Transition to previous game state.
+          @game_state = STATE_SELECT_PIECE
         else
-          # -- Move is not allowed by piece or destination is occupied.
-
-          if piece_destintation.empty?
-            # -- No destination entered.
-
-            # -- Clear possible moves from game grid.
-            @game_grid_model.set_target_locations(nil)
-
-            # -- Set status message.
-            message = "Deselected \"#{piece_location}\"."
-            # -- Transition to previous game state.
-            @game_state = STATE_SELECT_PIECE
-          else
-            # -- Invalid destination entered.
-            message = "\"#{piece_destintation}\" is not a valid move."
-          end
-        end
-      when STATE_END_TURN
-
-        if has_game_ended?
-          # -- Game has ended.
-
-          @game_running = false
-
-          # -- Draw final board.
-          redraw_board(message)
-
-          # -- Handle winner or draw.
-          if @winner == nil
-            puts "Result: The game is a draw."
-          else
-            puts "Result: Player #{@winner.logo} wins!"
-          end
-          puts "GAME OVER"
-
-        else
-          # -- Game still running.
-
-          # -- Switch to next player.
-          player_position += 1
-          player_position = player_position >= player_order.length ? 0 : player_position
-
-          # puts "Press enter for next turn..."
-          # gets
-
-
-          # -- Set status message.
-          message = nil
-          # -- Transition to next game state.
-          @game_state = STATE_START_TURN
+          # -- Invalid destination entered.
+          puts "\"#{piece_destintation}\" is not a valid move."
         end
       end
-
-
-
     end
-
-
   end
 
   def has_game_ended?
@@ -266,7 +318,7 @@ class GameStateModel
   end
 
   def redraw_board(message)
-    system ("clear")
+    # system ("clear")
     @game_grid_view.display_grid
 
     puts

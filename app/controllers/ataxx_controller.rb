@@ -22,6 +22,9 @@ class AtaxxController < ApplicationController
       @game = create_new_game
       @game_id = @game.id
     end
+
+    @game_grid = @game.game_state.game_grid_model
+
     puts "================"
     puts @game_id
     puts "================"
@@ -35,15 +38,24 @@ class AtaxxController < ApplicationController
     game_id = SecureRandom.uuid
     game = AtaxxGameModel.new(game_id)
     @@games[game_id] = game
+    game.game_state.start
     return game
   end
 
   def update
     @game_id = params[:game_id]
     @game = get_game(@game_id)
+    puts "checking game"
     if @game != nil
-       respond_to do |format|
-        format.js { render :json => {:debug => params.inspect}}
+      puts "found game"
+      @game.game_state.handle_update(params)
+      respond_to do |format|
+        format.html { render :text => "hi there" }
+        format.js { render :json => {
+          # :debug => params.inspect,
+          :debug => @game.game_state.get_state_stats.inspect,
+          :state => @game.game_state.get_state_stats
+          }}
       end
     end
   end
