@@ -1,6 +1,7 @@
 (function( board, $, undefined ) {
 
   var cell_lookup_for_location_id = {};
+  var piece_lookup_for_location_id = {};
 
   board.attach = function() {
     var cells = $('td[id^=cell_]');
@@ -15,6 +16,14 @@
         // this == the element that fired the change event
         board.click_cell(this.id);
       });
+    });
+
+    var pieces = $('[id^=piece_]');
+    pieces.each(function(index) {
+
+      var id_split = this.id.split('_');
+      var location_id = id_split[1];
+      piece_lookup_for_location_id[location_id] = this;
     });
   };
 
@@ -69,13 +78,13 @@
     var player_id;
     var cell;
 
-    $.each(cell_lookup_for_location_id, function(key, value) {
+    $.each(piece_lookup_for_location_id, function(key, value) {
       $(value).removeClass();
     });
 
     $.each(board_state.pieces, function(index) {
       player_id = this.player_id;
-      cell = cell_lookup_for_location_id[this.location_id];
+      cell = piece_lookup_for_location_id[this.location_id];
       switch (player_id) {
         case 1:
           $(cell).addClass('red_piece');
@@ -87,13 +96,12 @@
           $(cell).removeClass();
           break;
       }
+    });
 
-
-      // if (player_id === 1) {
-      //   $(cell).addClass('red_piece');
-      // } else {
-      //   $(cell).addClass('blue_piece');
-      // }
+    $.each(board_state.selected_pieces, function(index) {
+      player_id = this.player_id;
+      cell = piece_lookup_for_location_id[this.location_id];
+      $(cell).addClass('gps_ring');
     });
 
 

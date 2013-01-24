@@ -49,7 +49,7 @@ class GameStateModel
 
     @player_order = [1, 2]
     @player_position = 0
-
+    @selected_pieces = []
   end
 
   def get_state_stats
@@ -62,7 +62,8 @@ class GameStateModel
   def get_board_state_stats
     {
       :pieces => get_all_piece_state_stats,
-      :size => [@game_grid_model.x_size, @game_grid_model.y_size]
+      :size => [@game_grid_model.x_size, @game_grid_model.y_size],
+      :selected_pieces => @selected_pieces
     }
   end
 
@@ -139,6 +140,7 @@ class GameStateModel
 
     response = {}
     message = nil
+    state = nil
     puts "hello"
     puts @game_state.inspect
 
@@ -173,13 +175,12 @@ class GameStateModel
         @game_state = STATE_MOVE_PIECE
 
 
-        response[:select_pieces] = [{
-          :player_id => @current_player_piece,
-          :baord_location => @current_player_piece.location_id
-        }];
-
         redraw_board(message)
 
+        @selected_pieces.push({
+          :player_id => @current_player_id,
+          :location_id => @current_player_piece.location_id
+          })
       end
 
 
@@ -220,10 +221,12 @@ class GameStateModel
 
         redraw_board(message)
 
+        @selected_pieces.clear
       else
         # -- Move is not allowed by piece or destination is occupied.
-
-        if piece_destintation.empty?
+        puts "location: " + @current_player_piece.location_id
+        puts "destination: " + @game_grid_model.resolve_location(piece_destintation)
+        if @game_grid_model.resolve_location(piece_destintation) == @current_player_piece.location_id
           # -- No destination entered.
 
           # -- Clear possible moves from game grid.
@@ -233,12 +236,19 @@ class GameStateModel
           message = "Deselected \"#{piece_location}\"."
           # -- Transition to previous game state.
           @game_state = STATE_SELECT_PIECE
+
+          redraw_board(message)
+
+          @selected_pieces.clear
+
         else
           # -- Invalid destination entered.
           puts "\"#{piece_destintation}\" is not a valid move."
         end
       end
     end
+
+    return get_state_stats
   end
 
   def has_game_ended?

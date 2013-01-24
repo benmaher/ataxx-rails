@@ -48,13 +48,14 @@ class AtaxxController < ApplicationController
     puts "checking game"
     if @game != nil
       puts "found game"
-      @game.game_state.handle_update(params)
+      state = @game.game_state.handle_update(params)
       respond_to do |format|
         format.html { render :text => "hi there" }
         format.js { render :json => {
           # :debug => params.inspect,
           :debug => @game.game_state.get_state_stats.inspect,
-          :state => @game.game_state.get_state_stats
+          # :state => @game.game_state.get_state_stats
+          :state => state
           }}
       end
     end

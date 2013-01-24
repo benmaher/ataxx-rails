@@ -5,7 +5,7 @@
 #board td {
   width: 32px;
   height: 32px;
-  background-color: white;
+  background-color: #8DD;
   text-align: center;
 }
 
@@ -14,13 +14,42 @@
 }
 
 #board .red_piece {
+  width: 75%;
+  height: 75%;
+  margin: auto;
   background-color: red;
-
+  border: 2px solid #555;
+  -webkit-border-radius: 32px;
 }
 
 #board .blue_piece {
+  width: 75%;
+  height: 75%;
+  margin: auto;
   background-color: blue;
+  border: 2px solid #555;
+  -webkit-border-radius: 32px;
+}
 
+#board .gps_ring {
+
+    /*border: 3px solid #999;*/
+    /*-webkit-border-radius: 32px;*/
+/*    height: 18px;
+    width: 18px;*/
+/*    position: absolute;
+    left:20px;
+    top:214px;
+*/
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite;
+    opacity: 0.0
+}
+
+@-webkit-keyframes pulsate {
+    0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
+    50% {opacity: 1.0;}
+    100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
 }
 
 #status_section {

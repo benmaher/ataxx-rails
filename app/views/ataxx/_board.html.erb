@@ -18,7 +18,8 @@
       <td id='<%= row_id %>'><%=row_label%></td>
       <% @game_grid.column_labels.each do |column_label| %>
         <% cell_id = "cell_#{column_label}#{row_label}" %>
-        <td id='<%= cell_id %>'></td>
+        <% piece_id = "piece_#{column_label}#{row_label}" %>
+        <td id='<%= cell_id %>'><section id='<%= piece_id %>'/></td>
       <% end %>
       <td id='<%= row_id %>'><%=row_label%></td>
     </tr>
