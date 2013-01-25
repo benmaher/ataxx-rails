@@ -1,5 +1,68 @@
+#header_section {
+  margin: 0 auto;
+  text-align: center;
+}
+
+#game_title {
+  font-size: 48px;
+}
+
+#message_section {
+  border: solid 1px #aaa;
+  text-align: center;
+  margin: 0 auto;
+  height: 100px;
+}
+
+#piece_count {
+  font-size: 48px;
+  vertical-align: middle;
+}
+
+#status_and_board {
+  border: solid 1px #aaa;
+  text-align: center;
+  margin: 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.stats_section {
+  width: 200px;
+  height: 200px;
+
+  -webkit-border-radius: 16px;
+  margin: 0px 32px;
+
+  display: inline-block;
+  vertical-align: top;
+
+  border: thick #000 solid ;
+}
+
+.stats_left {
+  border-color: #A00;
+  background-color: #F55;
+}
+
+.stats_right {
+  border-color: blue;
+  background-color: #55F;
+}
+
+.stats_active {
+  border-color: yellow;
+}
+
+#board_section {
+    display: inline-block;
+    vertical-align: top;
+}
+
 #board {
   background-color: black;
+
+
 }
 
 #board td {
@@ -17,8 +80,8 @@
   width: 75%;
   height: 75%;
   margin: auto;
-  background-color: red;
-  border: 2px solid #555;
+  background-color: #A00;
+  border: 2px solid #F55;
   -webkit-border-radius: 32px;
 }
 
@@ -27,7 +90,7 @@
   height: 75%;
   margin: auto;
   background-color: blue;
-  border: 2px solid #555;
+  border: 2px solid #55F;
   -webkit-border-radius: 32px;
 }
 
@@ -52,10 +115,11 @@
     100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
 }
 
-#status_section {
-  border: thin red solid;
-  width: 50%;
-  height: 32px;
-  margin: 32px 0px;
-
+#user_section {
+  clear: both;
 }
+
+#debug_section {
+  clear: both;
+}
+

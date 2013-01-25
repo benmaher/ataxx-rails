@@ -32,46 +32,15 @@
     var location_id = id_split[1];
     // var cell_y = id_split[2];
 
-    // Using the core $.ajax method
-    $.ajax({
-
-      // the URL for the request
-      url : "/ataxx/update",
-
-      // the data to send
-      // (will be converted to a query string)
-      data : {
-        game_id : game.get_game_id(),
+    game.update({
         location_id : location_id
-      },
+      });
+  };
 
-      // whether this is a POST or GET request
-      type : "GET",
-
-      // the type of data we expect back
-      dataType : "json",
-
-      // code to run if the request succeeds;
-      // the response is passed to the function
-      success : function( json ) {
-        // $("<p/>").text( json.title ).appendTo("body");
-        $("#debug_section").text( json.debug );
-        refresh_board_from_state(json.state.board);
-      },
-
-      // code to run if the request fails;
-      // the raw request and status codes are
-      // passed to the function
-      error : function( xhr, status ) {
-        alert(status);
-      },
-
-      // code to run regardless of success or failure
-      complete : function( xhr, status ) {
-        //alert("The request is complete!");
-      }
-
-    });
+  board.update = function(state) {
+    refresh_board_from_state(state.board);
+    refresh_players_from_state(state);
+    refresh_message_from_state(state);
   };
 
   function refresh_board_from_state(board_state) {
@@ -105,7 +74,42 @@
     });
 
 
+
   }
+
+  function refresh_players_from_state(state) {
+    var players = state.players;
+    $('#stats_left').find('#piece_count').text(players[1].piece_count);
+    $('#stats_right').find('#piece_count').text(players[2].piece_count);
+
+    switch (state.active_player_id) {
+      case 1:
+        $('#stats_left').addClass('stats_active');
+        $('#stats_right').removeClass('stats_active');
+        break;
+      case 2:
+        $('#stats_left').removeClass('stats_active');
+        $('#stats_right').addClass('stats_active');
+        break;
+      default:
+        $('#stats_left').removeClass('stats_active');
+        $('#stats_right').removeClass('stats_active');
+        break;
+    }
+
+
+  }
+
+  function refresh_message_from_state(state) {
+    var message = state.message;
+    if (message != null) {
+      $('#message_section').html(message);
+    } else {
+      $('#message_section').text("");
+    }
+  }
+
+
 }( window.board = window.board || {}, jQuery ));
 
 

@@ -48,15 +48,29 @@ class GameStateModel
     # -- Initialize start of game.
 
     @player_order = [1, 2]
-    @player_position = 0
+    @player_position = -1
     @selected_pieces = []
+    @message = nil
   end
 
   def get_state_stats
     {
       :name => @game_state,
-      :board => get_board_state_stats
+      :board => get_board_state_stats,
+      :players => get_all_player_stats,
+      :active_player_id => @current_player_id,
+      :message => @message
     }
+  end
+
+  def get_all_player_stats
+    stats = {}
+    @players.each do |player_id, player|
+      stats[player_id] = {
+        :piece_count => player.game_pieces.count
+      }
+    end
+    return stats
   end
 
   def get_board_state_stats
@@ -98,15 +112,15 @@ class GameStateModel
       @game_running = false
 
       # -- Draw final board.
-      redraw_board(message)
+      redraw_board(@message)
 
       # -- Handle winner or draw.
       if @winner == nil
-        puts "Result: The game is a draw."
+        @message = "Result: The game is a draw."
       else
-        puts "Result: Player #{@winner.logo} wins!"
+        @message = "Result: Player #{@winner.logo} wins!"
       end
-      puts "GAME OVER"
+      @message += "<br>GAME OVER"
 
     else
       # -- Game still running.
@@ -120,7 +134,7 @@ class GameStateModel
 
 
       # -- Set status message.
-      message = nil
+      @message = nil
       # -- Transition to next game state.
       @game_state = STATE_START_TURN
 
@@ -130,7 +144,7 @@ class GameStateModel
       @current_player = @players[@current_player_id]
 
       # -- Set status message.
-      message = nil
+      @message = nil
       # -- Transition to next game state.
       @game_state = STATE_SELECT_PIECE
     end
@@ -139,7 +153,7 @@ class GameStateModel
   def handle_update(update_info)
 
     response = {}
-    message = nil
+    @message = nil
     state = nil
     puts "hello"
     puts @game_state.inspect
@@ -150,7 +164,7 @@ class GameStateModel
       response[:game_state] = @game_state
 
       # -- Draw game board and message.
-      redraw_board(message)
+      redraw_board(@message)
 
       # -- Get player selection.
       # print "Move which piece?: "
@@ -162,20 +176,20 @@ class GameStateModel
 
       if @current_player_piece == nil
         # -- Invalid piece selection.
-        puts = "\"#{piece_location}\" is not a valid selection."
+        @message = "\"#{piece_location}\" is not a valid selection."
       else
-        puts "Selected piece at location: #{piece_location}"
+        @message = "Selected piece at location: #{piece_location}"
 
         # -- Valid piece selection.
         # -- Update game grid with possible moves for selected piece.
         @game_grid_model.set_target_locations(@current_player_piece.available_moves)
         # -- Set status message.
-        message = nil
+        @message = nil
         # -- Transition to next game state.
         @game_state = STATE_MOVE_PIECE
 
 
-        redraw_board(message)
+        redraw_board(@message)
 
         @selected_pieces.push({
           :player_id => @current_player_id,
@@ -186,7 +200,7 @@ class GameStateModel
 
     when STATE_MOVE_PIECE
       # -- Draw game board and message.
-      redraw_board(message)
+      redraw_board(@message)
 
       # -- Get player move.
       # print "Move \"#{piece_location}\" to where?: "
@@ -219,7 +233,7 @@ class GameStateModel
 
         end_player_turn()
 
-        redraw_board(message)
+        redraw_board(@message)
 
         @selected_pieces.clear
       else
@@ -233,17 +247,17 @@ class GameStateModel
           @game_grid_model.set_target_locations(nil)
 
           # -- Set status message.
-          message = "Deselected \"#{piece_location}\"."
+          @message = "Deselected \"#{piece_location}\"."
           # -- Transition to previous game state.
           @game_state = STATE_SELECT_PIECE
 
-          redraw_board(message)
+          redraw_board(@message)
 
           @selected_pieces.clear
 
         else
           # -- Invalid destination entered.
-          puts "\"#{piece_destintation}\" is not a valid move."
+          @message = "\"#{piece_destintation}\" is not a valid move."
         end
       end
     end

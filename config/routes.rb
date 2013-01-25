@@ -2,6 +2,7 @@ AtaxxRails::Application.routes.draw do
 
   get("/ataxx", {:controller => "Ataxx", :action => "index"})
   get("/test", {:controller => "Ataxx", :action => "test"})
+  # get("/ataxx/start", {:controller => "Ataxx", :action => "start"})
   get("/ataxx/update", {:controller => "Ataxx", :action => "update"})
 
   # The priority is based upon order of creation:

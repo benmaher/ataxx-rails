@@ -1,6 +1,7 @@
 class AtaxxController < ApplicationController
 
   @@game_count = 0
+  @@games = {}
 
 
   def index
@@ -42,12 +43,18 @@ class AtaxxController < ApplicationController
     return game
   end
 
+  # def start
+  #   @game = create_new_game()
+  #   @game_id = @game.id
+  #   redirect_to "/ataxx/update"
+  # end
+
   def update
     @game_id = params[:game_id]
     @game = get_game(@game_id)
-    puts "checking game"
+    puts "checking game #{@game_id}"
     if @game != nil
-      puts "found game"
+      puts "found game #{@game_id}"
       state = @game.game_state.handle_update(params)
       respond_to do |format|
         format.html { render :text => "hi there" }

@@ -3,13 +3,24 @@
 
 </head>
 
-
-<h1>ATAXX</h1>
+<div id='header_section'>
+  <span id='game_title'>ATAXX</span>
+</div>
 
 <%= content_tag "div", id: "game_data", data: {game_id: @game_id} do %>
 <% end %>
 
-<%= render 'board' %>
-<%= render 'status' %>
+<div id='status_and_board'>
+  <div id='stats_left' class='stats_section stats_left'>
+    <span id='piece_count'/>
+  </div>
+  <%= render 'board' %>
+  <div id='stats_right' class='stats_section stats_right'>
+    <span id='piece_count'>
+  </div>
+</div>
+
+<div id="message_section">
+</div>
 <%= render 'user' %>
 <%= render 'debug' %>
