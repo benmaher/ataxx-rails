@@ -50,6 +50,7 @@ class GameStateModel
     @player_order = [1, 2]
     @player_position = -1
     @selected_pieces = []
+    @available_moves = []
     @message = nil
   end
 
@@ -77,7 +78,8 @@ class GameStateModel
     {
       :pieces => get_all_piece_state_stats,
       :size => [@game_grid_model.x_size, @game_grid_model.y_size],
-      :selected_pieces => @selected_pieces
+      :selected_pieces => @selected_pieces,
+      :available_moves => @available_moves
     }
   end
 
@@ -182,6 +184,8 @@ class GameStateModel
 
         # -- Valid piece selection.
         # -- Update game grid with possible moves for selected piece.
+        @available_moves = @current_player_piece.available_moves
+        puts @available_moves.inspect
         @game_grid_model.set_target_locations(@current_player_piece.available_moves)
         # -- Set status message.
         @message = nil
@@ -229,6 +233,7 @@ class GameStateModel
         assimilate_adjacent_enemies(@attacking_player_piece)
 
         # -- Clear possible moves from game grid.
+        @available_moves = []
         @game_grid_model.set_target_locations(nil)
 
         end_player_turn()
@@ -244,6 +249,7 @@ class GameStateModel
           # -- No destination entered.
 
           # -- Clear possible moves from game grid.
+          @available_moves = []
           @game_grid_model.set_target_locations(nil)
 
           # -- Set status message.

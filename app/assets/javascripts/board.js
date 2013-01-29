@@ -73,6 +73,20 @@
       $(cell).addClass('gps_ring');
     });
 
+    $.each(cell_lookup_for_location_id, function(key, value) {
+      // cell = cell_lookup_for_location_id[this];
+      if ($.inArray(key, board_state.available_moves) > -1) {
+        $(value).addClass('cell_active');
+      } else {
+        $(value).removeClass('cell_active');
+      }
+    });
+
+    // $.each(board_state.available_moves, function(index, value) {
+    //   cell = cell_lookup_for_location_id[value];
+    //   $(cell).addClass('cell_active');
+    // });
+
 
 
   }
