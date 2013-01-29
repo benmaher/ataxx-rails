@@ -1,6 +1,6 @@
 class CreateAtaxxBoard < ActiveRecord::Migration
   def up
-    create_table :ataxx_board do |t|
+    create_table :ataxx_boards do |t|
       t.string :name
       t.integer :x_size
       t.integer :y_size

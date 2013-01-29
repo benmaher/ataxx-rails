@@ -1,6 +1,6 @@
 class CreateAtaxxGame < ActiveRecord::Migration
   def up
-    create_table :ataxx_game do |t|
+    create_table :ataxx_games do |t|
       t.string :name
       t.integer :board_id
       t.text :state

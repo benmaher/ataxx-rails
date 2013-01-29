@@ -1,24 +1,11 @@
 class AtaxxController < ApplicationController
 
-  @@game_count = 0
-  @@games = {}
+
 
 
   def index
-    # if params[:new_game]
-    #   game = AtaxxGameModel.new
-    #   @@game[game_id]
-    # end
-
-
-    # respond_to do |format|
-    #   format.html { render 'index' }
-    #   format.js { render :json => {:title => "fine"}}
-    # end
-
-    @@games = {}
     @game_id = params[:game_id]
-    @game = get_game(@game_id)
+    @game = AtaxxGame.find_by_id(@game_id)
     if @game == nil
       @game = create_new_game
       @game_id = @game.id
