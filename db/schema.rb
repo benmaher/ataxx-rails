@@ -13,7 +13,7 @@
 
 ActiveRecord::Schema.define(:version => 20130128010549) do
 
-  create_table "ataxx_board", :force => true do |t|
+  create_table "ataxx_boards", :force => true do |t|
     t.string   "name"
     t.integer  "x_size"
     t.integer  "y_size"
@@ -23,7 +23,14 @@ ActiveRecord::Schema.define(:version => 20130128010549) do
     t.datetime "updated_at",        :null => false
   end
 
-  create_table "ataxx_game", :force => true do |t|
+  create_table "ataxx_game_players", :force => true do |t|
+    t.integer  "game_id"
+    t.integer  "user_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "ataxx_games", :force => true do |t|
     t.string   "name"
     t.integer  "board_id"
     t.text     "state"
@@ -34,14 +41,7 @@ ActiveRecord::Schema.define(:version => 20130128010549) do
     t.datetime "updated_at",     :null => false
   end
 
-  create_table "ataxx_game_player", :force => true do |t|
-    t.integer  "game_id"
-    t.integer  "user_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  create_table "user", :force => true do |t|
+  create_table "users", :force => true do |t|
     t.string   "username"
     t.string   "first_name"
     t.string   "last_name"

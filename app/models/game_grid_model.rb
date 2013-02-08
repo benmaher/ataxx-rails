@@ -62,44 +62,48 @@ class GameGridModel
     @occupied_locations = Set.new
   end
 
-  def add_piece(game_piece, location)
-    # puts __method__
-
+  def add_piece(piece_id, location)
     grid_cell = get_grid_cell(location)
-
     if grid_cell == nil
-      return nil
+      return false
     else
-      grid_cell.add_game_piece(game_piece)
-      game_piece.set_game_grid_model(self)
-      game_piece.set_location(grid_cell.id)
-      update_available_moves_for_pieces
+      grid_cell.add_game_piece(piece_id)
       @occupied_locations.add(grid_cell.id)
       @unoccupied_locations.delete(grid_cell.id)
-      return game_piece
+      return true
     end
   end
 
-  def remove_piece(game_piece)
-    grid_cell = get_grid_cell(game_piece.location_grid_point)
-    if grid_cell != nil
-      grid_cell.remove_game_piece(game_piece)
-      game_piece.handle_removed_from_location
-      update_available_moves_for_pieces
+  def remove_piece(piece_id, location)
+    grid_cell = get_grid_cell(location)
+    if grid_cell == nil
+      return false
+    else
+      grid_cell.remove_game_piece(piece_id)
       @occupied_locations.delete(grid_cell.id)
       @unoccupied_locations.add(grid_cell.id)
+      return true
     end
   end
 
-  def get_game_piece(location)
+  def get_pieces(location)
     grid_cell = get_grid_cell(location)
-
     if grid_cell == nil
       return nil
     else
-      return grid_cell.game_pieces[0]
+      return grid_cell.game_pieces
     end
   end
+
+  def has_piece?(piece_id, location)
+    grid_cell = get_grid_cell(location)
+    if grid_cell == nil
+      return false
+    else
+      return grid_cell.game_pieces.include?(piece_id)
+    end
+  end
+
 
   def set_target_locations(locations)
     if locations == nil

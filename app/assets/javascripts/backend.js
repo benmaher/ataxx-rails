@@ -1,10 +1,10 @@
 (function( backend, $, undefined ) {
-  backend.update = function(data, callback) {
+  backend.update = function(game_id, data, callback) {
         // Using the core $.ajax method
     $.ajax({
 
       // the URL for the request
-      url : "/ataxx/update",
+      url : "/ataxx/" + game_id + "/update",
 
       // the data to send
       // (will be converted to a query string)

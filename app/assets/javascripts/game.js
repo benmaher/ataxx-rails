@@ -5,7 +5,10 @@
   game.attach = function() {
     game_id = $('#game_data').data('game-id');
     board.attach();
-    game.update({});
+
+    if (game_id !== null) {
+      game.update({});
+    }
   }
 
   game.get_game_id = function() {
@@ -13,8 +16,7 @@
   };
 
   game.update = function(update_data) {
-    update_data.game_id = game.get_game_id();
-    backend.update(update_data, handle_update);
+    backend.update(game_id, update_data, handle_update);
   };
 
   function handle_update(state) {

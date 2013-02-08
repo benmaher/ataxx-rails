@@ -5,18 +5,18 @@
 
   <tr>
     <td class='corner'></td>
-    <% @game_grid.column_labels.each do |column_label| %>
+    <% @board.column_labels.each do |column_label| %>
       <% column_id = "column_#{column_label}" %>
       <td id='<%= column_id %>'><%=column_label%></td>
     <% end %>
     <td class='corner'></td>
   </tr>
 
-  <% @game_grid.row_labels.each do |row_label| %>
+  <% @board.row_labels.each do |row_label| %>
     <tr>
       <% row_id = "row_#{row_label}" %>
       <td id='<%= row_id %>'><%=row_label%></td>
-      <% @game_grid.column_labels.each do |column_label| %>
+      <% @board.column_labels.each do |column_label| %>
         <% cell_id = "cell_#{column_label}#{row_label}" %>
         <% piece_id = "piece_#{column_label}#{row_label}" %>
         <td id='<%= cell_id %>'><section id='<%= piece_id %>'/></td>
@@ -27,7 +27,7 @@
 
   <tr>
     <td class='corner'></td>
-    <% @game_grid.column_labels.each do |column_label| %>
+    <% @board.column_labels.each do |column_label| %>
       <% column_id = "column_#{column_label}" %>
       <td id='<%= column_id %>'><%=column_label%></td>
     <% end %>

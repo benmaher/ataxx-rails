@@ -1,0 +1,22 @@
+<head>
+  <title>Ataxx</title>
+
+</head>
+
+<%= content_tag "div", id: "game_data", data: {game_id: @game_id} do %>
+<% end %>
+
+<div id='status_and_board'>
+  <div id='stats_left' class='stats_section stats_left'>
+    <span id='piece_count'/>
+  </div>
+  <%= render 'board' %>
+  <div id='stats_right' class='stats_section stats_right'>
+    <span id='piece_count'>
+  </div>
+</div>
+
+<div id="message_section">
+</div>
+<%= render 'user' %>
+<%= render 'debug' %>

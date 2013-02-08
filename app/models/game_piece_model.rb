@@ -1,44 +1,64 @@
 class GamePieceModel
 
-  attr_accessor 'player_id'
-  attr_reader 'location_id'
-  attr_reader 'location_grid_point'
-  attr_reader 'available_moves'
-  attr_reader 'display_name'
+  attr_reader :id
+  attr_accessor :player_id
+  attr_reader :location_id
+  attr_reader :location_grid_point
+  attr_reader :available_moves
+  attr_reader :display_name
 
   def initialize(player_id, display_name)
+    @id = SecureRandom.uuid
     @player_id = player_id
     @location_id = nil
     @location_grid_point = nil
     @available_moves = []
-    @game_grid_model = nil
     @display_name = display_name == nil ? "#{player_id}" : "#{display_name}"
   end
 
-  def set_game_grid_model(game_grid_model)
-    @game_grid_model = game_grid_model
+  def set_id(id)
+    @id = id
   end
+
+  def get_state
+    {
+      id: @id,
+      player_id: @player_id,
+      location: {
+        id: @location_id,
+        x: @location_grid_point.x,
+        y: @location_grid_point.y
+        },
+      moves: Array.new(@available_moves),
+      display_name: @display_name
+    }
+  end
+
+  def load_state(state)
+    @id = state[:id]
+    @player_id = state[:player_id]
+    @location_id = state[:location][:id]
+    @location_grid_point = GridPointModel.new(state[:location][:x], state[:location][:y])
+    @available_moves = Array.new(state[:moves])
+    @display_name = state[:display_name]
+  end
+
 
   def set_location(location)
-    @location_id = @game_grid_model.resolve_location(location)
-
-    if @location_id != nil
-      @location_grid_point = @game_grid_model.get_location_grid_point(@location_id)
-    end
+    @location_id = location
   end
 
-  def handle_removed_from_location
+  def remove_location
     @location_id = nil
     @location_grid_point = nil
     @available_moves = []
-    @game_grid_model = nil
   end
 
   def allowed_move?(move_location)
-    return @available_moves.include?(@game_grid_model.resolve_location(move_location))
+    return @available_moves.include?(move_location)
   end
 
-  def update_available_moves
+  def update_available_moves(game_grid_model)
     @available_moves.clear
 
     x_start = @location_grid_point.x - 2
@@ -48,9 +68,9 @@ class GamePieceModel
 
     x_start.upto(x_end) do |x_coor|
       y_start.upto(y_end) do |y_coor|
-        target_location_id = @game_grid_model.resolve_location(GridPointModel.new(x_coor, y_coor))
-        if @game_grid_model.valid_location?(target_location_id) &&
-          !@game_grid_model.occupied_location?(target_location_id)
+        target_location_id = game_grid_model.resolve_location(GridPointModel.new(x_coor, y_coor))
+        if game_grid_model.valid_location?(target_location_id) &&
+          !game_grid_model.occupied_location?(target_location_id)
 
           @available_moves.push(target_location_id)
         end

@@ -9,6 +9,7 @@ class GameStateModel
 
   attr_reader :game_grid_model
 
+  STATE_UNINITIALIZED = 6
   STATE_START_TURN = 0
   STATE_SELECT_PIECE = 1
   STATE_MOVE_PIECE = 2
@@ -18,26 +19,13 @@ class GameStateModel
 
   def initialize
 
-    # -- Setup game grid.
-    @game_grid_model = GameGridModel.new
-    game_grid_x_size = 7
-    game_grid_y_size = 7
-    @game_grid_model.set_size(game_grid_x_size, game_grid_y_size)
-    @game_grid_view = GameGridView.new(@game_grid_model)
 
-    # -- Setup players.
-    @players = { 1 => PlayerModel.new(1, :X), 2 => PlayerModel.new(2, :O) }
-    @player_piece_design_lookup = { 1 => :X, 2 => :O, 3 => :Y, 4 => :P}
-    @current_player = nil
-    @current_player_id = nil
-    @current_player_piece = nil
+    reset
 
-    # -- Setup player pieces
-    add_new_player_piece(1, GridPointModel.new(0, 0))
-    add_new_player_piece(1, GridPointModel.new(game_grid_x_size-1, game_grid_y_size-1))
-    add_new_player_piece(2, GridPointModel.new(game_grid_y_size-1, 0))
-    add_new_player_piece(2, GridPointModel.new(0, game_grid_y_size-1))
+    @logo_lookup = { 1 => :X, 2 => :O, 3 => :Y, 4 => :P}
 
+    @piece_manager = PieceManager.new
+    @player_manager = PlayerManager.new
 
     # @game_grid_model.unoccupied_locations.each do |location|
     #   add_new_player_piece(1, location)
@@ -45,23 +33,110 @@ class GameStateModel
 
     # remove_player_piece(@game_grid_model.get_game_piece("g6"))
 
-    # -- Initialize start of game.
-
-    @player_order = [1, 2]
-    @player_position = -1
-    @selected_pieces = []
-    @available_moves = []
-    @message = nil
   end
 
-  def get_state_stats
+  def reset
+    @game_state = STATE_UNINITIALIZED
+    @selected_pieces = []
+    @current_player_id = nil
+    @player_order = []
+    @player_position = nil
+    @available_moves = []
+    @current_player = nil
+    @current_player_piece = nil
+  end
+
+  def attach_board(board)
+    @game_grid_model = board
+    @game_grid_view = GameGridView.new(@game_grid_model)
+  end
+
+  def setup(data)
+    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
+
+    data[:players].each_with_index do |player_data, index|
+      player = PlayerModel.new
+      player.set_logo(@logo_lookup[index+1])
+      @player_manager.add_player(player)
+      @player_order.push(player.id)
+      player_data[:initial_locations].each do |location|
+        add_new_player_piece(player.id, location)
+      end
+    end
+
+    puts @players.inspect
+
+      # -- Setup player pieces
+      # x_size = @game_grid_model.x_size
+      # y_size = @game_grid_model.y_size
+
+      # add_new_player_piece(1, GridPointModel.new(x_size-1, y_size-1))
+      # add_new_player_piece(2, GridPointModel.new(y_size-1, 0))
+      # add_new_player_piece(2, GridPointModel.new(0, y_size-1))
+
+
+    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
+  end
+
+  def load_state(state)
+    if state == nil
+      reset
+
+      # -- Setup players.
+      # @players = { 1 => PlayerModel.new(1, :X), 2 => PlayerModel.new(2, :O) }
+
+      @game_state = STATE_SELECT_PIECE
+
+    else
+      @game_state = state[:state_code]
+
+      load_players_from_state(state[:players])
+
+      load_pieces_from_state(state[:pieces][:all])
+      @selected_pieces = Array.new(state[:pieces][:selected])
+
+      @player_order = Array.new(state[:player_order])
+      turn_player_id = state[:turn_player_id]
+      @current_player_id = turn_player_id == nil ? @player_order.first : turn_player_id
+      @player_position = @player_order.index(@current_player_id)
+      @current_player = nil
+      @current_player_piece = nil
+    end
+
+    @game_running = true
+    advance_to_next_player
+  end
+
+  def get_state
+    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
+
     {
-      :name => @game_state,
-      :board => get_board_state_stats,
-      :players => get_all_player_stats,
-      :active_player_id => @current_player_id,
-      :message => @message
+      :state_code => @state_code,
+      :players => @player_manager.get_player_states,
+      :pieces => {
+        all: @piece_manager.get_piece_states,
+        selected: @selected_pieces
+      },
+      :turn_player_id => @current_player_id,
+      :player_order => @player_order
     }
+
+  end
+
+
+
+  def load_players_from_state(state)
+    @player_manager.reset
+    state.each do |player_state|
+      @player_manager.add_player(PlayerModel.new.load_state(player_state))
+    end
+  end
+
+  def load_pieces_from_state(state)
+    @pieces = {}
+    state.each do |piece_state|
+      add_new_player_piece(piece_state[:id], piece_state[:player_id])
+    end
   end
 
   def get_all_player_stats
@@ -96,15 +171,6 @@ class GameStateModel
     return states
   end
 
-  def start
-    @game_state = STATE_SELECT_PIECE
-    @game_running = true
-    end_player_turn
-    state = get_state_stats
-    state[:board][:reset] = true
-    return state
-  end
-
   def end_player_turn
 
 
@@ -127,29 +193,29 @@ class GameStateModel
     else
       # -- Game still running.
 
-      # -- Switch to next player.
-      @player_position += 1
-      @player_position = @player_position >= @player_order.length ? 0 : @player_position
-
-      # puts "Press enter for next turn..."
-      # gets
-
+      advance_to_next_player
 
       # -- Set status message.
       @message = nil
-      # -- Transition to next game state.
-      @game_state = STATE_START_TURN
 
 
-      # -- Select next player.
-      @current_player_id = @player_order[@player_position]
-      @current_player = @players[@current_player_id]
-
-      # -- Set status message.
-      @message = nil
-      # -- Transition to next game state.
-      @game_state = STATE_SELECT_PIECE
     end
+  end
+
+  def advance_to_next_player
+    if @current_player_id == nil
+      @player_position = -1;
+    else
+      @player_position = @player_order.index(@current_player_id)
+    end
+
+    # -- Switch to next player.
+    @player_position += 1
+    @player_position = @player_position >= @player_order.length ? 0 : @player_position
+    # -- Select next player.
+    @current_player_id = @player_order[@player_position]
+    @current_player = @player_manager.get_player(@current_player_id)
+    @game_state = STATE_SELECT_PIECE
   end
 
   def handle_update(update_info)
@@ -158,7 +224,7 @@ class GameStateModel
     @message = nil
     state = nil
     puts "hello"
-    puts @game_state.inspect
+    # puts @game_state.inspect
 
     case @game_state
 
@@ -267,8 +333,6 @@ class GameStateModel
         end
       end
     end
-
-    return get_state_stats
   end
 
   def has_game_ended?
@@ -419,27 +483,34 @@ class GameStateModel
 
   def add_new_player_piece(player_id, location)
     # -- Create new player piece for given player_id.
-    new_player_piece = GamePieceModel.new(player_id, @player_piece_design_lookup[player_id])
-    if @game_grid_model.add_piece(new_player_piece, location) == nil
-      # -- Unable to place piece on board so return nil.
-      return nil
+    player = @player_manager.get_player(player_id)
+    piece = GamePieceModel.new(player_id, player.logo)
+    if @game_grid_model.add_piece(piece.id, location)
+      # -- Unable to place piece on board.
+      return false
     else
       # -- Piece placed on board.
 
+      # -- Update available moves.
+      update_available_moves_for_pieces
       # -- Register piece with player.
-      @players[player_id].add_game_piece(new_player_piece)
-
-      # -- Return new piece.
-      return new_player_piece
+      player.add_game_piece(piece.id)
+      piece.set_location(location)
+      # -- Return.
+      return true
     end
   end
 
-  def remove_player_piece(player_piece)
+  def remove_player_piece(piece)
     # -- Remove piece from board.
-    @game_grid_model.remove_piece(player_piece)
+    @game_grid_model.remove_piece(piece)
+    # -- Remove piece from manager.
+    @piece_manager.remove_piece(piece)
     # -- Remove piece from player.
-    @players[player_piece.player_id].remove_game_piece(player_piece)
+    @player_manager.get_player(player_piece.player_id).remove_game_piece(piece)
 
+    game_piece.remove_location
+    update_available_moves_for_pieces
   end
 
 end
