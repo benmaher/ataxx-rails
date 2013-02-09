@@ -1,9 +1,9 @@
 class GameGridCellModel
 
-  attr_reader 'x'
-  attr_reader 'y'
-  attr_reader 'id'
-  attr_reader 'game_pieces'
+  attr_reader :x
+  attr_reader :y
+  attr_reader :id
+  attr_reader :game_pieces
 
   def initialize(id, x, y)
     @id = id

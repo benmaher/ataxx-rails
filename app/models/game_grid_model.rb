@@ -86,7 +86,7 @@ class GameGridModel
     end
   end
 
-  def get_pieces(location)
+  def get_pieces_at(location)
     grid_cell = get_grid_cell(location)
     if grid_cell == nil
       return nil

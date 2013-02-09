@@ -54,6 +54,9 @@ class GameStateModel
   def setup(data)
     puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
+    puts 'data'
+    puts data.inspect
+
     data[:players].each_with_index do |player_data, index|
       player = PlayerModel.new
       player.set_logo(@logo_lookup[index+1])
@@ -64,7 +67,10 @@ class GameStateModel
       end
     end
 
-    puts @players.inspect
+    validate_state
+
+    puts 'state'
+    puts get_state.inspect
 
       # -- Setup player pieces
       # x_size = @game_grid_model.x_size
@@ -79,6 +85,7 @@ class GameStateModel
   end
 
   def load_state(state)
+
     if state == nil
       reset
 
@@ -99,12 +106,12 @@ class GameStateModel
       turn_player_id = state[:turn_player_id]
       @current_player_id = turn_player_id == nil ? @player_order.first : turn_player_id
       @player_position = @player_order.index(@current_player_id)
-      @current_player = nil
+      @current_player = @player_manager.get_player(@current_player_id)
       @current_player_piece = nil
     end
 
     @game_running = true
-    advance_to_next_player
+    validate_state
   end
 
   def get_state
@@ -202,12 +209,16 @@ class GameStateModel
     end
   end
 
-  def advance_to_next_player
+  def validate_state
     if @current_player_id == nil
       @player_position = -1;
     else
       @player_position = @player_order.index(@current_player_id)
     end
+  end
+
+  def advance_to_next_player
+    validate_current_player
 
     # -- Switch to next player.
     @player_position += 1
@@ -417,7 +428,7 @@ class GameStateModel
 
     puts
 
-    @players.each do |player_id, player|
+    @player_manager.get_all_players.each do |player|
       puts "Player #{player.logo} piece count: #{player.get_piece_count}"
     end
 

@@ -11,7 +11,7 @@ class PieceManager
         remove_piece(piece.id)
       end
       if options[:overwrite_id]
-        piece.id = nil
+        piece.id = SecureRandom.uuid
       end
     end
     register_piece(piece)
@@ -55,10 +55,11 @@ class PieceManager
 
   def register_piece(piece)
     if !@piece_lookup[piece.id]
-      if piece.id == nil
-        piece.set_id(SecureRandom.uuid)
-      end
+      # if piece.id == nil
+      #   piece.set_id(SecureRandom.uuid)
+      # end
       @piece_lookup[piece.id] = piece
+      @pieces.add(piece)
     end
   end
 

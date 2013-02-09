@@ -9,6 +9,8 @@ class AtaxxGame < ActiveRecord::Base
     # puts @game_board.inspect
     # puts '##############'
 
+    prime
+
     parsed_state = nil
     begin
       parsed_state = JSON.parse(self.state, :symbolize_names => true)
@@ -46,6 +48,15 @@ class AtaxxGame < ActiveRecord::Base
     @game_state.get_state
   end
 
+  def prime
+    if !@primed
+      @primed = true
+      @game_state = GameStateModel.new
+      @game_board = get_board(self.board_id)
+      @game_state.attach_board(@game_board)
+    end
+  end
+
   def setup(data)
     puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
@@ -54,10 +65,7 @@ class AtaxxGame < ActiveRecord::Base
     # puts data.inspect
     self.board_id = data[:board_id]
 
-    @game_state = GameStateModel.new
-    @game_board = get_board(self.board_id)
-    @game_state.attach_board(@game_board)
-
+    prime
 
     puts 'self'
     puts inspect

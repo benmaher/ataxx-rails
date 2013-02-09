@@ -19,7 +19,7 @@ class GameGridView
     @game_grid_model.x_size.times do |column_index|
       location = @game_grid_model.resolve_location(GridPointModel.new(column_index, row_index))
 
-      game_piece = @game_grid_model.get_game_piece(location)
+      game_piece = @game_grid_model.get_pieces_at(location).first
       if game_piece == nil
         if @game_grid_model.target_locations.include?(location)
           print " . |"

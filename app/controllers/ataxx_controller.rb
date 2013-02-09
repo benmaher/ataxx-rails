@@ -26,19 +26,7 @@ class AtaxxController < ApplicationController
     end
 
     @game_id = @game.id
-    @game.setup({
-      :board_id => 2,
-      :players => [
-        {
-          name: 'Uno',
-          initial_locations: ['a7', 'g1']
-        },
-        {
-          name: 'Dos',
-          initial_locations: ['a1', 'g7']
-        }
-      ]
-      })
+
     @game.sync
     @board = @game.game_board
   end
@@ -50,14 +38,16 @@ class AtaxxController < ApplicationController
   def create_new_game()
     # game_id = SecureRandom.uuid
     game = AtaxxGame.new
-    game.setup({
+    @game.setup({
       :board_id => 2,
       :players => [
         {
-          :initial_locations => ['a7', 'g1']
+          name: 'Uno',
+          initial_locations: ['a7', 'g1']
         },
         {
-          :initial_locations => ['a1', 'g7']
+          name: 'Dos',
+          initial_locations: ['a1', 'g7']
         }
       ]
       })

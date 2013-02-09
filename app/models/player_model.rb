@@ -24,12 +24,6 @@ class PlayerModel
     }
   end
 
-  def save_state(state)
-    state[:id] = @id
-    state[:logo] = @logo
-    state[:pieces] = Array.new @game_pieces
-  end
-
   def load_state(state)
     @id = state[:id]
     @logo = state[:logo]
