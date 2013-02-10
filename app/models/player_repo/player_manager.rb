@@ -11,7 +11,6 @@ class PlayerManager
   end
 
   def add_player(player, options=nil)
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
     if options.is_a?(Hash)
       if options[:replace]
@@ -23,7 +22,6 @@ class PlayerManager
     end
     register_player(player)
 
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
   end
 
   def remove_player(player)
@@ -34,8 +32,8 @@ class PlayerManager
       id = player.id
     end
 
-    player = @players_lookup.remove(id)
-    @players.remove(player)
+    player = @player_lookup.delete(id)
+    @players.delete(player)
   end
 
   def get_player(id)
@@ -46,16 +44,26 @@ class PlayerManager
     Array.new(@players.to_a)
   end
 
+  def get_all_players_with_pieces
+    matched_players = []
+    @players.each do |player|
+
+      if player.has_pieces?
+        matched_players.push(player)
+      end
+
+    end
+    return matched_players
+  end
+
   def get_player_states
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
-    puts 'players'
+    puts 'Getting player states:'
     puts @players.inspect
     states = []
     @players.each do |player|
       states.push player.get_state
     end
 
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
     return states
 
@@ -64,19 +72,16 @@ class PlayerManager
   private
 
   def register_player(player)
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
-    puts 'player'
+    puts 'Registering player:'
     puts player.inspect
     puts @players.inspect
-    if !@player_lookup[player.id]
-      # if player.id == nil
-      #   player.set_id(SecureRandom.uuid)
-      # end
+    if @player_lookup[player.id]
+      return nil
+    else
       @player_lookup[player.id] = player
       @players.add(player)
+      return player
     end
-
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
   end
 
 end

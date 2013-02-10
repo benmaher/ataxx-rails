@@ -2,8 +2,10 @@ class GameGridView
 
   attr_reader 'game_grid_model'
 
-  def initialize(game_grid_model)
+  def initialize(game_grid_model, player_manager, piece_manager)
     @game_grid_model = game_grid_model
+    @player_manager = player_manager
+    @piece_manager = piece_manager
   end
 
   def display_row_border
@@ -19,7 +21,7 @@ class GameGridView
     @game_grid_model.x_size.times do |column_index|
       location = @game_grid_model.resolve_location(GridPointModel.new(column_index, row_index))
 
-      game_piece = @game_grid_model.get_pieces_at(location).first
+      game_piece = @piece_manager.get_piece(@game_grid_model.get_pieces_at(location).first)
       if game_piece == nil
         if @game_grid_model.target_locations.include?(location)
           print " . |"

@@ -23,6 +23,7 @@ class GameGridModel
     @unoccupied_locations = Set.new
     @occupied_locations = Set.new
     @target_locations = []
+    @location_lookup_by_piece_id = {}
   end
 
   def set_size(x, y)
@@ -68,18 +69,21 @@ class GameGridModel
       return false
     else
       grid_cell.add_game_piece(piece_id)
+      @location_lookup_by_piece_id[piece_id] = location
       @occupied_locations.add(grid_cell.id)
       @unoccupied_locations.delete(grid_cell.id)
       return true
     end
   end
 
-  def remove_piece(piece_id, location)
+  def remove_piece(piece_id)
+    location = @location_lookup_by_piece_id[piece_id]
     grid_cell = get_grid_cell(location)
     if grid_cell == nil
       return false
     else
       grid_cell.remove_game_piece(piece_id)
+      @location_lookup_by_piece_id.remove(piece_id)
       @occupied_locations.delete(grid_cell.id)
       @unoccupied_locations.add(grid_cell.id)
       return true
@@ -89,9 +93,9 @@ class GameGridModel
   def get_pieces_at(location)
     grid_cell = get_grid_cell(location)
     if grid_cell == nil
-      return nil
+      return []
     else
-      return grid_cell.game_pieces
+      return Array.new(grid_cell.game_pieces)
     end
   end
 

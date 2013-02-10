@@ -3,11 +3,6 @@ class AtaxxGame < ActiveRecord::Base
   attr_reader :game_board
 
   def sync
-    # verify_components
-
-    # puts '##############'
-    # puts @game_board.inspect
-    # puts '##############'
 
     prime
 
@@ -17,15 +12,19 @@ class AtaxxGame < ActiveRecord::Base
     rescue
     end
 
-    puts '##############'
+    puts "Parsed state:"
     puts parsed_state.inspect
-    puts '##############'
 
     @game_state.load_state(parsed_state)
   end
 
   def save_state
+
     self.state = JSON.generate(@game_state.get_state)
+
+    puts 'Saving state:'
+    puts self.state
+
     save
   end
 
@@ -42,6 +41,7 @@ class AtaxxGame < ActiveRecord::Base
 
   def handle_update(params)
     @game_state.handle_update(params)
+    save_state
   end
 
   def get_state
@@ -58,42 +58,23 @@ class AtaxxGame < ActiveRecord::Base
   end
 
   def setup(data)
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
-    @setup_occurred = true
+    puts 'Setup data:'
+    puts data.inspect
 
-    # puts data.inspect
     self.board_id = data[:board_id]
 
     prime
 
-    puts 'self'
-    puts inspect
-
-    puts 'data'
-    puts data.inspect
+    self.moves = '[]'
 
     @game_state.setup(data)
+    save_state
 
-    hold_state = @game_state.get_state
-
-    puts 'game state'
-    puts hold_state.inspect
-
-    self.state = JSON.generate(hold_state)
-
-    puts 'JSON game state'
-    puts self.state.inspect
-
-
-    puts 'self'
+    puts 'Game row inpsection:'
     puts inspect
 
 
-    self.moves = '[]'
-    save
-
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
   end
 

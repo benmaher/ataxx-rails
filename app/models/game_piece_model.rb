@@ -7,7 +7,7 @@ class GamePieceModel
   attr_reader :available_moves
   attr_reader :display_name
 
-  def initialize(player_id, display_name)
+  def initialize(player_id=nil, display_name=nil)
     @id = SecureRandom.uuid
     @player_id = player_id
     @location_id = nil
@@ -41,6 +41,7 @@ class GamePieceModel
     @location_grid_point = GridPointModel.new(state[:location][:x], state[:location][:y])
     @available_moves = Array.new(state[:moves])
     @display_name = state[:display_name]
+    return self
   end
 
 
@@ -61,6 +62,8 @@ class GamePieceModel
   def update_available_moves(game_grid_model)
     @available_moves.clear
 
+    @location_grid_point = game_grid_model.get_location_grid_point(@location_id)
+
     x_start = @location_grid_point.x - 2
     x_end = @location_grid_point.x + 2
     y_start = @location_grid_point.y - 2
@@ -76,6 +79,10 @@ class GamePieceModel
         end
       end
     end
+  end
+
+  def has_moves?
+    return !@available_moves.empty?
   end
 
 end

@@ -1,11 +1,13 @@
 class PlayerModel
   attr_reader :id
+  attr_accessor :number
   attr_reader :logo
   attr_reader :game_pieces
 
-  def initialize
+  def initialize(number=nil, logo=nil)
     @id = SecureRandom.uuid
-    @logo = nil
+    @number = number
+    @logo = logo
     @game_pieces = Set.new
   end
 
@@ -20,12 +22,14 @@ class PlayerModel
   def get_state
     {
       id: @id,
+      number: @number,
       logo: @logo
     }
   end
 
   def load_state(state)
     @id = state[:id]
+    @number = state[:number]
     @logo = state[:logo]
     @game_pieces = Set.new state[:pieces]
     return self

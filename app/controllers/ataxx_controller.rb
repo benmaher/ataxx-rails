@@ -9,18 +9,14 @@ class AtaxxController < ApplicationController
     @game = create_new_game
     @game_id = @game.id
 
-    puts "================"
-    puts @game_id
-    puts "================"
+    puts "NEW GAME ID: #{@game_id}"
 
     redirect_to game_url(@game_id)
   end
 
   def game
     @game = get_game(params[:id])
-    puts "================"
-    # puts @game.inspect
-    puts "================"
+
     if @game == nil
       @game = create_new_game
     end
@@ -38,7 +34,7 @@ class AtaxxController < ApplicationController
   def create_new_game()
     # game_id = SecureRandom.uuid
     game = AtaxxGame.new
-    @game.setup({
+    game.setup({
       :board_id => 2,
       :players => [
         {
@@ -63,10 +59,12 @@ class AtaxxController < ApplicationController
   def update
     @game_id = params[:id]
     @game = get_game(@game_id)
-    @game.sync
-    puts "checking game #{@game_id}"
+    puts "Checking game #{@game_id}"
     if @game != nil
-      puts "found game #{@game_id}"
+      puts "Found game #{@game_id}"
+      puts "Synching game"
+      @game.sync
+      puts "Updating game"
       @game.handle_update(params)
       state = @game.get_state
       respond_to do |format|

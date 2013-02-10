@@ -36,7 +36,7 @@ class GameStateModel
   end
 
   def reset
-    @game_state = STATE_UNINITIALIZED
+    @state_code = STATE_UNINITIALIZED
     @selected_pieces = []
     @current_player_id = nil
     @player_order = []
@@ -48,18 +48,16 @@ class GameStateModel
 
   def attach_board(board)
     @game_grid_model = board
-    @game_grid_view = GameGridView.new(@game_grid_model)
+    @game_grid_view = GameGridView.new(@game_grid_model, @player_manager, @piece_manager)
   end
 
   def setup(data)
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
-    puts 'data'
+    puts 'Setup data:'
     puts data.inspect
 
     data[:players].each_with_index do |player_data, index|
-      player = PlayerModel.new
-      player.set_logo(@logo_lookup[index+1])
+      player = PlayerModel.new(index+1, @logo_lookup[index+1])
       @player_manager.add_player(player)
       @player_order.push(player.id)
       player_data[:initial_locations].each do |location|
@@ -69,7 +67,7 @@ class GameStateModel
 
     validate_state
 
-    puts 'state'
+    puts 'State after setup:'
     puts get_state.inspect
 
       # -- Setup player pieces
@@ -81,7 +79,6 @@ class GameStateModel
       # add_new_player_piece(2, GridPointModel.new(0, y_size-1))
 
 
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
   end
 
   def load_state(state)
@@ -92,12 +89,13 @@ class GameStateModel
       # -- Setup players.
       # @players = { 1 => PlayerModel.new(1, :X), 2 => PlayerModel.new(2, :O) }
 
-      @game_state = STATE_SELECT_PIECE
+      @state_code = STATE_SELECT_PIECE
 
     else
-      @game_state = state[:state_code]
+      @state_code = state[:state_code]
 
       load_players_from_state(state[:players])
+      puts "Loaded players: #{@player_manager.get_player_states.inspect}"
 
       load_pieces_from_state(state[:pieces][:all])
       @selected_pieces = Array.new(state[:pieces][:selected])
@@ -107,15 +105,13 @@ class GameStateModel
       @current_player_id = turn_player_id == nil ? @player_order.first : turn_player_id
       @player_position = @player_order.index(@current_player_id)
       @current_player = @player_manager.get_player(@current_player_id)
-      @current_player_piece = nil
+      @current_player_piece = @piece_manager.get_piece(@selected_pieces.first)
     end
 
-    @game_running = true
     validate_state
   end
 
   def get_state
-    puts "========\n" + self.class.name + "##{__method__}" + "\n========\n"
 
     {
       :state_code => @state_code,
@@ -130,19 +126,31 @@ class GameStateModel
 
   end
 
+  def validate_state
 
+    if @state_code == nil || @state_code == STATE_UNINITIALIZED
+      @state_code = STATE_SELECT_PIECE
+    end
+
+    if @current_player_id == nil
+      @player_position = -1;
+    else
+      @player_position = @player_order.index(@current_player_id)
+    end
+  end
 
   def load_players_from_state(state)
     @player_manager.reset
     state.each do |player_state|
-      @player_manager.add_player(PlayerModel.new.load_state(player_state))
+      player = @player_manager.add_player(PlayerModel.new.load_state(player_state))
     end
   end
 
   def load_pieces_from_state(state)
-    @pieces = {}
+    @piece_manager.reset
     state.each do |piece_state|
-      add_new_player_piece(piece_state[:id], piece_state[:player_id])
+      piece = @piece_manager.add_piece(GamePieceModel.new.load_state(piece_state))
+      add_piece_to_board(piece.id, @game_grid_model, piece.location_id)
     end
   end
 
@@ -184,7 +192,7 @@ class GameStateModel
     if has_game_ended?
       # -- Game has ended.
 
-      @game_running = false
+      @state_code = STATE_FINISHED
 
       # -- Draw final board.
       redraw_board(@message)
@@ -209,16 +217,9 @@ class GameStateModel
     end
   end
 
-  def validate_state
-    if @current_player_id == nil
-      @player_position = -1;
-    else
-      @player_position = @player_order.index(@current_player_id)
-    end
-  end
 
   def advance_to_next_player
-    validate_current_player
+    # validate_current_player
 
     # -- Switch to next player.
     @player_position += 1
@@ -226,21 +227,20 @@ class GameStateModel
     # -- Select next player.
     @current_player_id = @player_order[@player_position]
     @current_player = @player_manager.get_player(@current_player_id)
-    @game_state = STATE_SELECT_PIECE
+    @state_code = STATE_SELECT_PIECE
   end
 
   def handle_update(update_info)
+    puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
 
-    response = {}
     @message = nil
     state = nil
-    puts "hello"
-    # puts @game_state.inspect
 
-    case @game_state
+    # puts @state_code.inspect
+
+    case @state_code
 
     when STATE_SELECT_PIECE
-      response[:game_state] = @game_state
 
       # -- Draw game board and message.
       redraw_board(@message)
@@ -262,20 +262,18 @@ class GameStateModel
         # -- Valid piece selection.
         # -- Update game grid with possible moves for selected piece.
         @available_moves = @current_player_piece.available_moves
+        puts "Available moves:"
         puts @available_moves.inspect
         @game_grid_model.set_target_locations(@current_player_piece.available_moves)
         # -- Set status message.
         @message = nil
         # -- Transition to next game state.
-        @game_state = STATE_MOVE_PIECE
+        @state_code = STATE_MOVE_PIECE
 
 
         redraw_board(@message)
 
-        @selected_pieces.push({
-          :player_id => @current_player_id,
-          :location_id => @current_player_piece.location_id
-          })
+        @selected_pieces.push(@current_player_piece.id)
       end
 
 
@@ -289,6 +287,8 @@ class GameStateModel
       piece_destintation = update_info[:location_id]
       puts "Clicked location: #{piece_destintation}"
 
+      puts "Current player piece: #{@current_player_piece}"
+
       if @current_player_piece.allowed_move?(piece_destintation) &&
         !@game_grid_model.occupied_location?(piece_destintation)
         # -- Move is allowed by piece and destination is not occupied.
@@ -299,6 +299,7 @@ class GameStateModel
         if (@current_player_piece.location_grid_point.x - piece_destination_grid_point.x).abs > 1 ||
           (@current_player_piece.location_grid_point.y - piece_destination_grid_point.y).abs > 1
           # -- Movement is more than one space.
+      puts "Current player piece: #{@current_player_piece}"
 
           # -- Piece jumps instead of duplicating.
           remove_player_piece(@current_player_piece)
@@ -332,7 +333,7 @@ class GameStateModel
           # -- Set status message.
           @message = "Deselected \"#{piece_location}\"."
           # -- Transition to previous game state.
-          @game_state = STATE_SELECT_PIECE
+          @state_code = STATE_SELECT_PIECE
 
           redraw_board(@message)
 
@@ -344,19 +345,15 @@ class GameStateModel
         end
       end
     end
+
+
+  puts "<<<<<<<<\n" + self.class.name + "##{__method__}" + "\n<<<<<<<<\n"
   end
 
   def has_game_ended?
 
     # -- Find all players that still have pieces.
-    players_with_pieces = []
-    @players.each do |player_id, player|
-
-      if player.has_pieces?
-        players_with_pieces.push(player)
-      end
-
-    end
+    players_with_pieces = @player_manager.get_all_players_with_pieces
 
 
     if players_with_pieces.length == 1
@@ -369,21 +366,14 @@ class GameStateModel
 
 
     # -- Find all players that still have moves.
-    players_with_moves = []
-    @players.each do |player_id, player|
-
-      if player.has_moves?
-        players_with_moves.push(player)
-      end
-
-    end
+    players_with_moves = @piece_manager.get_all_players_with_moves
 
     if players_with_moves.length == 1
       # -- Only one player has moves.
 
       # -- Fill rest of board with this player's pieces
       @game_grid_model.unoccupied_locations.each do |location|
-        player_id = players_with_moves[0].player_id
+        player_id = players_with_moves.first
         add_new_player_piece(player_id, location)
       end
       # -- Update that no players have moves.
@@ -396,7 +386,7 @@ class GameStateModel
       # -- Determine which player has the most pieces.
       most_pieces = 0
       players_with_most = []
-      @players.each do |player_id, player|
+      @player_manager.get_all_players.each do |player|
         # puts "#{player_id} : #{player.get_piece_count}"
         if player.get_piece_count >= most_pieces
           if player.get_piece_count > most_pieces
@@ -443,7 +433,7 @@ class GameStateModel
   end
 
   def get_player_piece(player_id, location)
-    game_piece = @game_grid_model.get_game_piece(location)
+    game_piece = @piece_manager.get_piece(@game_grid_model.get_pieces_at(location).first)
 
     if game_piece != nil && game_piece.player_id == player_id
       # -- Game piece exists for player at given location.
@@ -455,7 +445,7 @@ class GameStateModel
   end
 
   def assimilate_adjacent_enemies(attacking_player_piece)
-
+    puts "Attacking piece: #{attacking_player_piece.inspect}"
     if !attacking_player_piece.is_a?(GamePieceModel)
       # -- Do nothing if piece is wrong class.
       return nil
@@ -471,7 +461,8 @@ class GameStateModel
 
     x_start.upto(x_end) do |x_coor|
       y_start.upto(y_end) do |y_coor|
-        target_player_piece = @game_grid_model.get_game_piece(GridPointModel.new(x_coor, y_coor))
+        target_piece_id = @game_grid_model.get_pieces_at(GridPointModel.new(x_coor, y_coor)).first
+        target_player_piece = @piece_manager.get_piece(target_piece_id)
         if target_player_piece != nil &&
           target_player_piece.player_id != attacking_player_piece.player_id
           # -- Opponent piece exists in adjacent cell.
@@ -492,36 +483,58 @@ class GameStateModel
     # gets
   end
 
-  def add_new_player_piece(player_id, location)
-    # -- Create new player piece for given player_id.
-    player = @player_manager.get_player(player_id)
-    piece = GamePieceModel.new(player_id, player.logo)
-    if @game_grid_model.add_piece(piece.id, location)
+  def add_piece_to_board(piece_id, board, location)
+    puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
+
+    piece = @piece_manager.get_piece(piece_id)
+    success = board.add_piece(piece.id, location)
+    puts "Success #{success}"
+
+    if !success
       # -- Unable to place piece on board.
-      return false
+      return nil
     else
       # -- Piece placed on board.
 
-      # -- Update available moves.
-      update_available_moves_for_pieces
+      player = @player_manager.get_player(piece.player_id)
       # -- Register piece with player.
       player.add_game_piece(piece.id)
       piece.set_location(location)
+
+      # -- Update available moves.
+      @piece_manager.update_available_moves(@game_grid_model)
+      puts "Pieces: #{@piece_manager.get_piece_states.inspect}"
       # -- Return.
-      return true
+      return piece
     end
   end
 
+  def create_new_player_piece(player_id)
+    puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
+
+    # -- Create new player piece for given player_id.
+    puts "Getting player: #{player_id}"
+    player = @player_manager.get_player(player_id)
+    puts "Found player: #{player.inspect}"
+    @piece_manager.add_piece(GamePieceModel.new(player_id, player.logo))
+  end
+
+  def add_new_player_piece(player_id, location)
+    add_piece_to_board(create_new_player_piece(player_id).id, @game_grid_model, location)
+  end
+
   def remove_player_piece(piece)
+    # puts "Removing piece: #{piece.inspect}"
     # -- Remove piece from board.
     @game_grid_model.remove_piece(piece)
     # -- Remove piece from manager.
     @piece_manager.remove_piece(piece)
     # -- Remove piece from player.
-    @player_manager.get_player(player_piece.player_id).remove_game_piece(piece)
+    @player_manager.get_player(piece.player_id).remove_game_piece(piece)
 
-    game_piece.remove_location
-    update_available_moves_for_pieces
+    piece.remove_location
+    @piece_manager.update_available_moves(@game_grid_model)
+    return piece
   end
 
 end
