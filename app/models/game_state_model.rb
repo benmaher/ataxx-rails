@@ -106,6 +106,7 @@ class GameStateModel
       @player_position = @player_order.index(@current_player_id)
       @current_player = @player_manager.get_player(@current_player_id)
       @current_player_piece = @piece_manager.get_piece(@selected_pieces.first)
+      @message = state[:message]
     end
 
     validate_state
@@ -121,7 +122,8 @@ class GameStateModel
         selected: @selected_pieces
       },
       :turn_player_id => @current_player_id,
-      :player_order => @player_order
+      :player_order => @player_order,
+      :message => @message
     }
 
   end
