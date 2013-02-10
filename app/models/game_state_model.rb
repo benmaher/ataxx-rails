@@ -53,8 +53,8 @@ class GameStateModel
 
   def setup(data)
 
-    puts 'Setup data:'
-    puts data.inspect
+    # puts 'Setup data:'
+    # puts data.inspect
 
     data[:players].each_with_index do |player_data, index|
       player = PlayerModel.new(index+1, @logo_lookup[index+1])
@@ -67,8 +67,8 @@ class GameStateModel
 
     validate_state
 
-    puts 'State after setup:'
-    puts get_state.inspect
+    # puts 'State after setup:'
+    # puts get_state.inspect
 
       # -- Setup player pieces
       # x_size = @game_grid_model.x_size
@@ -95,7 +95,7 @@ class GameStateModel
       @state_code = state[:state_code]
 
       load_players_from_state(state[:players])
-      puts "Loaded players: #{@player_manager.get_player_states.inspect}"
+      # puts "Loaded players: #{@player_manager.get_player_states.inspect}"
 
       load_pieces_from_state(state[:pieces][:all])
       @selected_pieces = Array.new(state[:pieces][:selected])
@@ -231,7 +231,7 @@ class GameStateModel
   end
 
   def handle_update(update_info)
-    puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
+    # puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
 
     @message = nil
     state = nil
@@ -262,8 +262,8 @@ class GameStateModel
         # -- Valid piece selection.
         # -- Update game grid with possible moves for selected piece.
         @available_moves = @current_player_piece.available_moves
-        puts "Available moves:"
-        puts @available_moves.inspect
+        # puts "Available moves:"
+        # puts @available_moves.inspect
         @game_grid_model.set_target_locations(@current_player_piece.available_moves)
         # -- Set status message.
         @message = nil
@@ -287,7 +287,7 @@ class GameStateModel
       piece_destintation = update_info[:location_id]
       puts "Clicked location: #{piece_destintation}"
 
-      puts "Current player piece: #{@current_player_piece}"
+      # puts "Current player piece: #{@current_player_piece}"
 
       if @current_player_piece.allowed_move?(piece_destintation) &&
         !@game_grid_model.occupied_location?(piece_destintation)
@@ -299,7 +299,7 @@ class GameStateModel
         if (@current_player_piece.location_grid_point.x - piece_destination_grid_point.x).abs > 1 ||
           (@current_player_piece.location_grid_point.y - piece_destination_grid_point.y).abs > 1
           # -- Movement is more than one space.
-      puts "Current player piece: #{@current_player_piece}"
+          # puts "Current player piece: #{@current_player_piece}"
 
           # -- Piece jumps instead of duplicating.
           remove_player_piece(@current_player_piece)
@@ -347,7 +347,7 @@ class GameStateModel
     end
 
 
-  puts "<<<<<<<<\n" + self.class.name + "##{__method__}" + "\n<<<<<<<<\n"
+  # puts "<<<<<<<<\n" + self.class.name + "##{__method__}" + "\n<<<<<<<<\n"
   end
 
   def has_game_ended?
@@ -445,7 +445,7 @@ class GameStateModel
   end
 
   def assimilate_adjacent_enemies(attacking_player_piece)
-    puts "Attacking piece: #{attacking_player_piece.inspect}"
+    # puts "Attacking piece: #{attacking_player_piece.inspect}"
     if !attacking_player_piece.is_a?(GamePieceModel)
       # -- Do nothing if piece is wrong class.
       return nil
@@ -484,11 +484,11 @@ class GameStateModel
   end
 
   def add_piece_to_board(piece_id, board, location)
-    puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
+    # puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
 
     piece = @piece_manager.get_piece(piece_id)
     success = board.add_piece(piece.id, location)
-    puts "Success #{success}"
+    # puts "Success #{success}"
 
     if !success
       # -- Unable to place piece on board.
@@ -503,19 +503,19 @@ class GameStateModel
 
       # -- Update available moves.
       @piece_manager.update_available_moves(@game_grid_model)
-      puts "Pieces: #{@piece_manager.get_piece_states.inspect}"
+      # puts "Pieces: #{@piece_manager.get_piece_states.inspect}"
       # -- Return.
       return piece
     end
   end
 
   def create_new_player_piece(player_id)
-    puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
+    # puts ">>>>>>>>\n" + self.class.name + "##{__method__}" + "\n>>>>>>>>\n"
 
     # -- Create new player piece for given player_id.
-    puts "Getting player: #{player_id}"
+    # puts "Getting player: #{player_id}"
     player = @player_manager.get_player(player_id)
-    puts "Found player: #{player.inspect}"
+    # puts "Found player: #{player.inspect}"
     @piece_manager.add_piece(GamePieceModel.new(player_id, player.logo))
   end
 

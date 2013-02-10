@@ -12,8 +12,8 @@ class AtaxxGame < ActiveRecord::Base
     rescue
     end
 
-    puts "Parsed state:"
-    puts parsed_state.inspect
+    # puts "Parsed state:"
+    # puts parsed_state.inspect
 
     @game_state.load_state(parsed_state)
   end
@@ -22,8 +22,8 @@ class AtaxxGame < ActiveRecord::Base
 
     self.state = JSON.generate(@game_state.get_state)
 
-    puts 'Saving state:'
-    puts self.state
+    # puts 'Saving state:'
+    # puts self.state
 
     save
   end
@@ -59,8 +59,8 @@ class AtaxxGame < ActiveRecord::Base
 
   def setup(data)
 
-    puts 'Setup data:'
-    puts data.inspect
+    # puts 'Setup data:'
+    # puts data.inspect
 
     self.board_id = data[:board_id]
 
@@ -71,8 +71,8 @@ class AtaxxGame < ActiveRecord::Base
     @game_state.setup(data)
     save_state
 
-    puts 'Game row inpsection:'
-    puts inspect
+    # puts 'Game row inpsection:'
+    # puts inspect
 
 
 

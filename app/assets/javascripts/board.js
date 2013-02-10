@@ -110,7 +110,7 @@
       var piece_element = piece_lookup_by_location_id[piece.location.id];
       $(piece_element).addClass('gps_ring');
 
-      $.each(piece.moves, function(move) {
+      $.each(piece.moves, function(index, move) {
         var cell = cell_lookup_by_location_id[move];
         $(cell).addClass('cell_active');
       });

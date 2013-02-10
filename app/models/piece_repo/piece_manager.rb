@@ -23,10 +23,10 @@ class PieceManager
   end
 
   def remove_piece(piece)
-    puts
-    puts piece.inspect
-    puts @pieces_lookup.inspect
-    puts @pieces.inspect
+    # puts
+    # puts piece.inspect
+    # puts @pieces_lookup.inspect
+    # puts @pieces.inspect
 
     case piece
     when String

@@ -57,8 +57,8 @@ class PlayerManager
   end
 
   def get_player_states
-    puts 'Getting player states:'
-    puts @players.inspect
+    # puts 'Getting player states:'
+    # puts @players.inspect
     states = []
     @players.each do |player|
       states.push player.get_state
@@ -72,9 +72,9 @@ class PlayerManager
   private
 
   def register_player(player)
-    puts 'Registering player:'
-    puts player.inspect
-    puts @players.inspect
+    # puts 'Registering player:'
+    # puts player.inspect
+    # puts @players.inspect
     if @player_lookup[player.id]
       return nil
     else
