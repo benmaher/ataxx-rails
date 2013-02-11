@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  ataxx_version_id: 1
+  ataxx_board_id: 1
+  state: MyText
+
+two:
+  ataxx_version_id: 1
+  ataxx_board_id: 1
+  state: MyText

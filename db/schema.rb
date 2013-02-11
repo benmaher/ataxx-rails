@@ -11,34 +11,51 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130128010549) do
+ActiveRecord::Schema.define(:version => 20130211052052) do
 
   create_table "ataxx_boards", :force => true do |t|
     t.string   "name"
     t.integer  "x_size"
     t.integer  "y_size"
-    t.text     "blocked_locations"
-    t.text     "initial_pieces"
-    t.datetime "created_at",        :null => false
-    t.datetime "updated_at",        :null => false
-  end
-
-  create_table "ataxx_game_players", :force => true do |t|
-    t.integer  "game_id"
-    t.integer  "user_id"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
-  create_table "ataxx_games", :force => true do |t|
-    t.string   "name"
-    t.integer  "board_id"
+  create_table "ataxx_players", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "ataxx_session_id"
+    t.integer  "number"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  create_table "ataxx_sessions", :force => true do |t|
+    t.integer  "ataxx_version_id"
+    t.integer  "ataxx_board_id"
     t.text     "state"
-    t.text     "moves"
-    t.integer  "turn_player_id"
-    t.integer  "last_turn_time"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
+  create_table "ataxx_versions", :force => true do |t|
+    t.string   "name"
+    t.integer  "code"
+    t.integer  "game_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "game_codes", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "games", :force => true do |t|
+    t.string   "name"
+    t.integer  "game_code_id"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
   end
 
   create_table "users", :force => true do |t|

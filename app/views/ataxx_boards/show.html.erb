@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @ataxx_board.name %>
+</p>
+
+<p>
+  <b>X size:</b>
+  <%= @ataxx_board.x_size %>
+</p>
+
+<p>
+  <b>Y size:</b>
+  <%= @ataxx_board.y_size %>
+</p>
+
+
+<%= link_to 'Edit', edit_ataxx_board_path(@ataxx_board) %> |
+<%= link_to 'Back', ataxx_boards_path %>

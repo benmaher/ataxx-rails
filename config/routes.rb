@@ -1,5 +1,26 @@
 AtaxxRails::Application.routes.draw do
 
+  resources :users
+
+
+  resources :ataxx_boards
+
+
+  resources :ataxx_versions
+
+
+  resources :ataxx_players
+
+
+  resources :ataxx_sessions
+
+
+  resources :game_codes
+
+
+  resources :games
+
+
   # -- Create
   get 'ataxx/new' => 'Ataxx#new', :as => 'new_game'
 

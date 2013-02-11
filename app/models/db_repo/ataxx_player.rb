@@ -1,6 +1,7 @@
-class PlayerModel
-  attr_reader :id
-  attr_accessor :number
+class AtaxxPlayer < ActiveRecord::Base
+  attr_accessible :ataxx_session_id, :number, :user_id
+
+
   attr_reader :logo
   attr_reader :game_pieces
 
@@ -59,6 +60,5 @@ class PlayerModel
   #   end
   #   return false
   # end
-
 
 end

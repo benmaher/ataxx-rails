@@ -1,0 +1,27 @@
+<h1>Listing ataxx_sessions</h1>
+
+<table>
+  <tr>
+    <th>Ataxx version</th>
+    <th>Ataxx board</th>
+    <th>State</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ataxx_sessions.each do |ataxx_session| %>
+  <tr>
+    <td><%= ataxx_session.ataxx_version_id %></td>
+    <td><%= ataxx_session.ataxx_board_id %></td>
+    <td><%= ataxx_session.state %></td>
+    <td><%= link_to 'Show', ataxx_session %></td>
+    <td><%= link_to 'Edit', edit_ataxx_session_path(ataxx_session) %></td>
+    <td><%= link_to 'Destroy', ataxx_session, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ataxx session', new_ataxx_session_path %>

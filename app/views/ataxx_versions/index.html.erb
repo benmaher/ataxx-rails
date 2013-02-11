@@ -1,0 +1,27 @@
+<h1>Listing ataxx_versions</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Code</th>
+    <th>Game</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ataxx_versions.each do |ataxx_version| %>
+  <tr>
+    <td><%= ataxx_version.name %></td>
+    <td><%= ataxx_version.code %></td>
+    <td><%= ataxx_version.game_id %></td>
+    <td><%= link_to 'Show', ataxx_version %></td>
+    <td><%= link_to 'Edit', edit_ataxx_version_path(ataxx_version) %></td>
+    <td><%= link_to 'Destroy', ataxx_version, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ataxx version', new_ataxx_version_path %>

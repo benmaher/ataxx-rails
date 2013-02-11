@@ -1,0 +1,27 @@
+<h1>Listing ataxx_boards</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>X size</th>
+    <th>Y size</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ataxx_boards.each do |ataxx_board| %>
+  <tr>
+    <td><%= ataxx_board.name %></td>
+    <td><%= ataxx_board.x_size %></td>
+    <td><%= ataxx_board.y_size %></td>
+    <td><%= link_to 'Show', ataxx_board %></td>
+    <td><%= link_to 'Edit', edit_ataxx_board_path(ataxx_board) %></td>
+    <td><%= link_to 'Destroy', ataxx_board, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ataxx board', new_ataxx_board_path %>

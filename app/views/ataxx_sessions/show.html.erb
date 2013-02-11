@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Ataxx version:</b>
+  <%= @ataxx_session.ataxx_version_id %>
+</p>
+
+<p>
+  <b>Ataxx board:</b>
+  <%= @ataxx_session.ataxx_board_id %>
+</p>
+
+<p>
+  <b>State:</b>
+  <%= @ataxx_session.state %>
+</p>
+
+
+<%= link_to 'Edit', edit_ataxx_session_path(@ataxx_session) %> |
+<%= link_to 'Back', ataxx_sessions_path %>

@@ -6,5 +6,19 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-AtaxxBoard.create(name: 'Clear 7x7', x_size: 7, y_size: 7, blocked_locations: '', initial_pieces: '')
-AtaxxBoard.create(name: 'Clear 7x7', x_size: 7, y_size: 7, blocked_locations: '', initial_pieces: '')
+AtaxxBoard.destroy_all
+AtaxxBoard.create(name: 'Standard', x_size: 7, y_size: 7)
+
+GameCode.destroy_all
+GameCode.create(name: 'ataxx')
+
+Game.destroy_all
+Game.create(name: 'Ataxx', game_code_id: GameCode.find_by_name('ataxx').id)
+
+AtaxxVersion.destroy_all
+AtaxxVersion.create(name: '1.0.0', code: 10000, game_id: Game.find_by_name('Ataxx').id)
+
+# AtaxxSession.destroy_all
+User.destroy_all
+User.create(username: 'mullet', first_name: 'Mr.', last_name: 'Sprinkles')
+User.create(username: 'ender', first_name: 'Mr.', last_name: 'Fluffy')

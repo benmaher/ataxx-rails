@@ -1,4 +1,6 @@
-class AtaxxGame < ActiveRecord::Base
+class AtaxxSession < ActiveRecord::Base
+  attr_accessible :ataxx_board_id, :ataxx_version_id, :state
+
 
   attr_reader :game_board
 
@@ -77,5 +79,6 @@ class AtaxxGame < ActiveRecord::Base
 
 
   end
+
 
 end

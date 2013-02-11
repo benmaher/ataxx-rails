@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @ataxx_version.name %>
+</p>
+
+<p>
+  <b>Code:</b>
+  <%= @ataxx_version.code %>
+</p>
+
+<p>
+  <b>Game:</b>
+  <%= @ataxx_version.game_id %>
+</p>
+
+
+<%= link_to 'Edit', edit_ataxx_version_path(@ataxx_version) %> |
+<%= link_to 'Back', ataxx_versions_path %>

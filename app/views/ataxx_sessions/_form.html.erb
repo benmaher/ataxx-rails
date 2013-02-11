@@ -1,0 +1,29 @@
+<%= form_for(@ataxx_session) do |f| %>
+  <% if @ataxx_session.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@ataxx_session.errors.count, "error") %> prohibited this ataxx_session from being saved:</h2>
+
+      <ul>
+      <% @ataxx_session.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :ataxx_version_id %><br />
+    <%= f.number_field :ataxx_version_id %>
+  </div>
+  <div class="field">
+    <%= f.label :ataxx_board_id %><br />
+    <%= f.number_field :ataxx_board_id %>
+  </div>
+  <div class="field">
+    <%= f.label :state %><br />
+    <%= f.text_area :state %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

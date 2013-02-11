@@ -1,0 +1,29 @@
+<%= form_for(@ataxx_version) do |f| %>
+  <% if @ataxx_version.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@ataxx_version.errors.count, "error") %> prohibited this ataxx_version from being saved:</h2>
+
+      <ul>
+      <% @ataxx_version.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <%= f.label :code %><br />
+    <%= f.number_field :code %>
+  </div>
+  <div class="field">
+    <%= f.label :game_id %><br />
+    <%= f.number_field :game_id %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

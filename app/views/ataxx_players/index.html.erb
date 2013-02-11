@@ -1,0 +1,27 @@
+<h1>Listing ataxx_players</h1>
+
+<table>
+  <tr>
+    <th>User</th>
+    <th>Ataxx session</th>
+    <th>Number</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @ataxx_players.each do |ataxx_player| %>
+  <tr>
+    <td><%= ataxx_player.user_id %></td>
+    <td><%= ataxx_player.ataxx_session_id %></td>
+    <td><%= ataxx_player.number %></td>
+    <td><%= link_to 'Show', ataxx_player %></td>
+    <td><%= link_to 'Edit', edit_ataxx_player_path(ataxx_player) %></td>
+    <td><%= link_to 'Destroy', ataxx_player, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Ataxx player', new_ataxx_player_path %>
