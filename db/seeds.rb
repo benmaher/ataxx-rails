@@ -7,3 +7,4 @@
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
 AtaxxBoard.create(name: 'Clear 7x7', x_size: 7, y_size: 7, blocked_locations: '', initial_pieces: '')
+AtaxxBoard.create(name: 'Clear 7x7', x_size: 7, y_size: 7, blocked_locations: '', initial_pieces: '')
