@@ -20,20 +20,23 @@ AtaxxRails::Application.routes.draw do
 
   resources :games
 
+  # -- Core
+  # -- Read
+  get '/' => 'Core#index', as: 'core_home'
 
   # -- Create
-  get 'ataxx/new' => 'Ataxx#new', :as => 'new_game'
+  # get 'ataxx/new' => 'Ataxx#new', :as => 'new_game'
 
   # -- Read
-  get '/ataxx' => 'Ataxx#index', :as => 'ataxx'
-  get '/ataxx/:id' => 'Ataxx#game', :as => 'game'
+  # get '/ataxx' => 'Ataxx#index', :as => 'ataxx'
+  # get '/ataxx/:id' => 'Ataxx#game', :as => 'game'
 
   # -- Update
 
 
   # -- Delete
 
-  get("/test", {:controller => "Ataxx", :action => "test"})
+  # get("/test", {:controller => "Ataxx", :action => "test"})
   # get("/ataxx/start", {:controller => "Ataxx", :action => "start"})
   get("/ataxx/:id/update", {:controller => "Ataxx", :action => "update"})
 

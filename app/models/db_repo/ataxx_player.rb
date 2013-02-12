@@ -1,6 +1,7 @@
 class AtaxxPlayer < ActiveRecord::Base
   attr_accessible :ataxx_session_id, :number, :user_id
 
+  belongs_to :user
 
   attr_reader :logo
   attr_reader :game_pieces

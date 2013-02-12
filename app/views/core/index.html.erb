@@ -1,0 +1,16 @@
+<h1>Listing games</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th></th>
+  </tr>
+
+<% Game.all.each do |game| %>
+  <tr>
+    <td><%= game.name %></td>
+    <td><%= link_to 'Play', send('new_' + game.game_code.name + '_session_url') %></td>
+  </tr>
+<% end %>
+</table>
+

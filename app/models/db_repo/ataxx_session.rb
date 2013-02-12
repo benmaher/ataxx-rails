@@ -1,6 +1,8 @@
 class AtaxxSession < ActiveRecord::Base
   attr_accessible :ataxx_board_id, :ataxx_version_id, :state
 
+  belongs_to :ataxx_board
+  belongs_to :ataxx_version
 
   attr_reader :game_board
 
